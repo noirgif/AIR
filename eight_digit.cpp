@@ -189,21 +189,25 @@ double solve(const board initial_board)
 	}
 }
 
-const int fact[] = {1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+const int fact[] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320};
 
 inline void decode(board x, int no) noexcept
 {
-	for (int i = 8; i >= 0; --i)
+	std::vector<short> numbers({0, 1, 2, 3, 4, 5, 6, 7, 8});
+	for (int i = 8; i > 0; --i)
 	{
-		x[i] = no / fact[i];
+		auto num = no / fact[i];
+		x[i] = numbers[num]; 
+		numbers.erase(numbers.begin() + num);
 		no %= fact[i];
 	}
+	x[0] = numbers[0];
 }
 
 int main()
 {
 	board initial_board;
-	for (int i = 0; i < 362880 * 8; ++i)
+	for (int i = 0; i < 362880; ++i)
 	{
 		decode(initial_board, i);
 		auto ans1 = solve<less1>(initial_board);
