@@ -147,28 +147,15 @@ struct less2 {
 	}
 };
 
-#ifndef LARGER_ESTIMATE
-std::priority_queue<State, std::vector<State>, less1> search_list;
-#else
-std::priority_queue<State, std::vector<State>, less2> search_list;
-#endif
+template<class less>
+using StateList = std::priority_queue<State, std::vector<State>, less>;
 
-int main()
+template<class less>
+double solve(const board initial_board)
 {
-
-	// enter the initial State
-	board initial_board;
-	for (int i = 0; i < 9; ++i)
-	{
-		short a;
-		std::cin >> a;
-		initial_board[i] = a;
-	}
-
+	StateList<less> search_list;
 	// push it into the searching list
 	search_list.push(State{initial_board});
-
-	long double ans = std::numeric_limits<long double>::max();
 
 	while (!search_list.empty())
 	{
@@ -185,16 +172,13 @@ int main()
 		// check if it is the final state
 		if (now.reached())
 		{
-			ans = now.steps;
-			// break out of the loop
-			break;
+			return now.steps;
 		}
 
-		// warn if there are too many steps, 50 is an arbitrary number
-		if (now.steps > 50)
+		// abort if there are too many steps, 60 is an arbitrary number
+		if (now.steps > 60)
 		{
-			std::cout << "Too many steps" << std::endl;
-			continue;
+			return std::numeric_limits<long double>::max();
 		}
 
 		auto next_states = now.next_states();
@@ -203,7 +187,32 @@ int main()
 			search_list.push(state);
 		}
 	}
+}
 
-	std::cout << "Steps taken: " << int(ans) << std::endl;
+const int fact[] = {1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+
+inline void decode(board x, int no) noexcept
+{
+	for (int i = 8; i >= 0; --i)
+	{
+		x[i] = no / fact[i];
+		no %= fact[i];
+	}
+}
+
+int main()
+{
+	board initial_board;
+	for (int i = 0; i < 362880 * 8; ++i)
+	{
+		decode(initial_board, i);
+		auto ans1 = solve<less1>(initial_board);
+		auto ans2 = solve<less2>(initial_board);
+		if (ans1 != ans2)
+		{
+			std::cout << State(initial_board) << std::endl;
+			break;
+		}
+	}
 	return 0;
 }
