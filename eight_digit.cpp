@@ -175,7 +175,8 @@ double solve(const board initial_board)
 			return now.steps;
 		}
 
-		// abort if there are too many steps, 60 is an arbitrary number
+		// abort if there are too many steps (to tackle unsolvable cases)
+		//, 60 is an arbitrary number
 		if (now.steps > 60)
 		{
 			return std::numeric_limits<long double>::max();
@@ -216,6 +217,7 @@ int main()
 			std::cout << i << std::endl;
 		if (ans1 != ans2)
 		{
+			std::cout << ans1 << ' ' << ans2 << std::endl;
 			std::cout << State(initial_board) << std::endl;
 			break;
 		}
