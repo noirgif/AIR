@@ -128,7 +128,7 @@ std::ostream& operator<<(std::ostream& ost, const State& st)
 	std::cout << "STEP " << st.steps << ", MHT" << st.mht() << '\n';
 	for (short i = 0; i < 9; ++i)
 	{
-		ost << st.nums[i];
+		ost << st.nums[i] << ' ';
 		if (i % 3 == 2)
 			ost << '\n';
 	}
@@ -208,6 +208,8 @@ int main()
 		decode(initial_board, i);
 		auto ans1 = solve<less1>(initial_board);
 		auto ans2 = solve<less2>(initial_board);
+		if (i & 1024 == 0)
+			std::cout << i << std::endl;
 		if (ans1 != ans2)
 		{
 			std::cout << State(initial_board) << std::endl;
