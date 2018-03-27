@@ -106,19 +106,14 @@ std::vector<State> State::next_states() noexcept
 		}
 
 	/// available Directions
-	std::vector<Direction> dirs;
-	if (null_place > 2)
-		dirs.push_back(Direction::up);
-	if (null_place % 3 > 0)
-		dirs.push_back(Direction::left);
-	if (null_place % 3 < 2)
-		dirs.push_back(Direction::right);
-	if (null_place < 6)
-		dirs.push_back(Direction::down);
-
-	for (auto dir : dirs)
-		if (dir != prev)
-			result.push_back(this->gen_next(dir));
+	if (null_place > 2 && prev != Direction::down)
+		result.push_back(this->gen_next(Direction::up));
+	if (null_place % 3 > 0 && prev != Direction::right)
+		result.push_back(this->gen_next(Direction::left));
+	if (null_place % 3 < 2 && prev != Direction::left)
+		result.push_back(this->gen_next(Direction::right));
+	if (null_place < 6 && prev != Direction::up)
+		result.push_back(this->gen_next(Direction::down));
 	
 	return result;
 }
@@ -227,7 +222,6 @@ int main()
 			continue;
 		}
 		decode(initial_board, i);
-		std::cout << i << ":" << std::endl;
 		auto ans1 = solve<less1>(initial_board);
 		auto ans2 = solve<less2>(initial_board);
 		if (i & 1024 == 0)
