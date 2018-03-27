@@ -13,6 +13,8 @@ enum class Direction {
 	up = -1, down = 1, left = 2, right = -2, none = 0
 };
 
+int mh[9][9] = {{4,3,2,3,2,1,2,1,0},{0,1,2,1,2,3,2,3,4},{1,0,1,2,1,2,3,2,3},{2,1,0,3,2,1,4,3,2},{1,2,3,0,1,2,1,2,3},{2,1,2,1,0,1,2,1,2},{3,2,1,2,1,0,3,2,1},{2,3,4,1,2,3,0,1,2},{3,2,3,2,1,2,1,0,1}};
+
 class State {
 	public:
 		/// numbers
@@ -32,9 +34,7 @@ class State {
 		{
 			int ans = 0;
 			for (int i = 0; i < 9; ++i)
-			{	
-				ans += abs(i / 3 - nums[i] / 3) + abs(i % 3 - nums[i] % 3);
-			}
+				ans += mh[nums[i]][i];
 			return ans;
 		}
 
@@ -44,7 +44,7 @@ class State {
 		{
 			int ans = 0;
 			for (short i = 0; i < 9; ++i)
-				ans += (nums[i] != i);
+				ans += !!(mh[nums[i]][i]);
 			return ans;
 		}
 
@@ -63,7 +63,7 @@ class State {
 
 			short null_place = 0;
 			for (int i = 0; i < 9; ++i)
-			if (nums[i] == 8)
+			if (!nums[i])
 			{
 				null_place = i;
 				break;
@@ -82,7 +82,7 @@ class State {
 		bool reached() const noexcept
 		{
 			for (short i = 0; i < 9; ++i)
-				if (nums[i] != i)
+				if ((i + 1) % 9 != nums[i])
 					return false;
 			return true;
 		}
@@ -99,7 +99,7 @@ std::vector<State> State::next_states() noexcept
 	int null_place = 0;
 
 	for (int i = 0; i < 9; ++i)
-		if (nums[i] == 8)
+		if (!nums[i])
 		{
 			null_place = i;
 			break;
@@ -176,8 +176,8 @@ double solve(const board initial_board)
 		}
 
 		// abort if there are too many steps (to tackle unsolvable cases)
-		//, 60 is an arbitrary number
-		if (now.steps > 60)
+		//, 40 is an arbitrary number
+		if (now.steps > 40)
 		{
 			return std::numeric_limits<long double>::max();
 		}
@@ -205,21 +205,37 @@ inline void decode(board x, int no) noexcept
 	x[0] = numbers[0];
 }
 
+bool unsolvable(int no)
+{
+	int flag = 0;
+	for (int i = 8; i > 0; --i)
+	{
+		auto num = no / fact[i];
+		flag += i - num;
+		no %= fact[i];
+	}
+	return (flag & 1);
+}
+
 int main()
 {
 	board initial_board;
 	for (int i = 0; i < 362880; ++i)
 	{
+		if (unsolvable(i))
+		{
+			continue;
+		}
 		decode(initial_board, i);
+		std::cout << i << ":" << std::endl;
 		auto ans1 = solve<less1>(initial_board);
 		auto ans2 = solve<less2>(initial_board);
 		if (i & 1024 == 0)
 			std::cout << i << std::endl;
 		if (ans1 != ans2)
 		{
-			std::cout << ans1 << ' ' << ans2 << std::endl;
 			std::cout << State(initial_board) << std::endl;
-			break;
+			std::cout << ans1 << ' ' << ans2 << std::endl;
 		}
 	}
 	return 0;
