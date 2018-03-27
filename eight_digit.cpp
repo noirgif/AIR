@@ -13,6 +13,9 @@ enum class Direction {
 	up = -1, down = 1, left = 2, right = -2, none = 0
 };
 
+// mh[a][b] stores the Manhattan distance
+// for example, mh[0][2] means the empty piece's distance from where it should be(row 3, column 3)
+// to where it is now(2 -> row 1, column 3)
 int mh[9][9] = {{4,3,2,3,2,1,2,1,0},{0,1,2,1,2,3,2,3,4},{1,0,1,2,1,2,3,2,3},{2,1,0,3,2,1,4,3,2},{1,2,3,0,1,2,1,2,3},{2,1,2,1,0,1,2,1,2},{3,2,1,2,1,0,3,2,1},{2,3,4,1,2,3,0,1,2},{3,2,3,2,1,2,1,0,1}};
 
 class State {
@@ -39,7 +42,7 @@ class State {
 		}
 
 
-		/// displaced blocks
+		/// displaced pieces
 		int displaced() const noexcept
 		{
 			int ans = 0;
