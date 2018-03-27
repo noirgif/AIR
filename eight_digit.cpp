@@ -98,6 +98,7 @@ std::vector<State> State::next_states() noexcept
 
 	int null_place = 0;
 
+	// find which piece of the board is empty
 	for (int i = 0; i < 9; ++i)
 		if (!nums[i])
 		{
@@ -105,7 +106,8 @@ std::vector<State> State::next_states() noexcept
 			break;
 		}
 
-	/// available Directions
+	// available Directions
+	// optimization: one cannot return to its preceding state
 	if (null_place > 2 && prev != Direction::down)
 		result.push_back(this->gen_next(Direction::up));
 	if (null_place % 3 > 0 && prev != Direction::right)
@@ -118,6 +120,7 @@ std::vector<State> State::next_states() noexcept
 	return result;
 }
 
+// Used to print the board
 std::ostream& operator<<(std::ostream& ost, const State& st)
 {
 	std::cout << "STEP " << st.steps << ", MHT" << st.mht() << '\n';
@@ -130,6 +133,8 @@ std::ostream& operator<<(std::ostream& ost, const State& st)
 	return ost;
 }
 
+// used to compare states
+// if less()(a, b) is true, b is in front of a in the priority queue
 struct less1 {
 	bool operator()(const State a, const State b) {
 		return a.steps + a.mht() > b.steps + b.mht();
@@ -187,6 +192,7 @@ double solve(const board initial_board)
 
 const int fact[] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320};
 
+// decode: convert a number in 0..9!-1 to a board
 inline void decode(board x, int no) noexcept
 {
 	std::vector<short> numbers({0, 1, 2, 3, 4, 5, 6, 7, 8});
@@ -200,6 +206,7 @@ inline void decode(board x, int no) noexcept
 	x[0] = numbers[0];
 }
 
+// check if a board state is not solvable
 bool unsolvable(int no)
 {
 	int flag = 0;
@@ -217,17 +224,21 @@ int main()
 	board initial_board;
 	for (int i = 0; i < 362880; ++i)
 	{
+		// skip states that will never reach the end state
 		if (unsolvable(i))
 		{
 			continue;
 		}
+		// convert the number into the board
 		decode(initial_board, i);
+		// solve the board using different evaluation functions
 		auto ans1 = solve<less1>(initial_board);
 		auto ans2 = solve<less2>(initial_board);
-		if (i & 1024 == 0)
-			std::cout << i << std::endl;
+
 		if (ans1 != ans2)
 		{
+			// if the second search gives suboptimal result,
+			// print the board
 			std::cout << State(initial_board) << std::endl;
 			std::cout << ans1 << ' ' << ans2 << std::endl;
 		}
